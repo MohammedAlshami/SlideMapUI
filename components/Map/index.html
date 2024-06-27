@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcGIS Map with Shapefile</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.22/"></script>
+    <style>
+        #viewDiv {
+            height: 100vh;
+            margin: -12px;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewDiv"></div>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/GeoJSONLayer",
+            "esri/widgets/Search",
+            "esri/widgets/Legend",
+            "esri/widgets/Expand",
+            "esri/widgets/BasemapGallery",
+            "dojo/domReady!"
+        ], function(Map, MapView, GeoJSONLayer, Search, Legend, Expand, BasemapGallery) {
+
+            // Create a map with dark basemap
+            var map = new Map({
+                basemap: "dark-gray-vector" // dark mode basemap
+            });
+
+            // Create a MapView
+            var view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: [-74.006, 40.7128], // longitude, latitude
+                zoom: 10 // zoom level
+            });
+
+            // Add a search widget
+            var searchWidget = new Search({
+                view: view
+            });
+            view.ui.add(searchWidget, {
+                position: "top-left",
+                index: 0
+            });
+
+            // Create a basemap gallery
+            var basemapGallery = new BasemapGallery({
+                view: view,
+                source: {
+                    portal: {
+                        url: "https://www.arcgis.com",
+                        useVectorBasemaps: true  // Use vector basemaps if available
+                    }
+                }
+            });
+            var expandBasemapGallery = new Expand({
+                view: view,
+                content: basemapGallery,
+                expanded: false
+            });
+            view.ui.add(expandBasemapGallery, "top-right");
+
+
+            // URL to the GeoJSON files
+            var url1 = "https://raw.githubusercontent.com/MohammedAlshami/Datasets/main/nasa_global_landslide_catalog_poly.geojson";
+            var url2 = "https://raw.githubusercontent.com/MohammedAlshami/Datasets/main/coordinates_shapefile.geojson"; // Replace "URL_TO_YOUR_SECOND_GEOJSON_FILE" with the URL of your second GeoJSON file
+
+            // Create a PopupTemplate to show feature details
+            var popupTemplate = {
+                title: "Feature Details",
+                content: [
+                    {
+                        type: "fields",
+                        fieldInfos: [
+                            {
+                                fieldName: "field1", // Replace "field1" with the actual field name in your GeoJSON attributes
+                                label: "Field 1"
+                            },
+                            {
+                                fieldName: "field2", // Replace "field2" with the actual field name in your GeoJSON attributes
+                                label: "Field 2"
+                            }
+                        ]
+                    },
+                    {
+                        type: "text",
+                        text: "Coordinates: {Y}, {X}"  // Display coordinates in popup
+                    }
+                ]
+            };
+
+            // Create the first GeoJSON layer from the URL with the PopupTemplate
+            var geoJSONLayer1 = new GeoJSONLayer({
+                url: url1,
+                popupTemplate: popupTemplate
+            });
+            map.add(geoJSONLayer1);
+
+            // Create the second GeoJSON layer from the URL with the PopupTemplate
+            var geoJSONLayer2 = new GeoJSONLayer({
+                url: url2,
+                popupTemplate: popupTemplate
+            });
+            map.add(geoJSONLayer2);
+
+            // Create a legend widget
+            var legend = new Legend({
+                view: view,
+                layerInfos: [{
+                    layer: geoJSONLayer1,
+                    title: "Legend 1"
+                },{
+                    layer: geoJSONLayer2,
+                    title: "Legend 2"
+                }]
+            });
+            var expandLegend = new Expand({
+                view: view,
+                content: legend,
+                expanded: false
+            });
+
+            view.ui.add(expandLegend, "top-right");
+
+        });
+    </script>
+</body>
+</html>
