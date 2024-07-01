@@ -7,7 +7,7 @@ const Sidebar = () => {
         <div className="px-2 text-white flex flex-col space-y-6 items-center absolute w-26 bg-white  h-screen pt-8">
           <div className="space-y-6">
             <div className="border-gray-300 border rounded-md p-2 hover:shadow-xl">
-              <Navitem to="/home">
+              <Navitem to="/">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                   <path
                     fillRule="evenodd"

@@ -65,7 +65,7 @@ export const checkAccessAndRedirect = () => {
 
 // Function to get the list of URLs accessible to authenticated users
 const getAuthenticatedUrls = () => {
-  return ["/report", "/profile/reports", "/profile"];
+  return ["/report", "/profile/reports", "/profile", "/profile/detect"];
 };
 
 // Function to get the list of URLs accessible only to admins

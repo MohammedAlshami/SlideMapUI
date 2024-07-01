@@ -3,13 +3,20 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "@/app/components/MainLayout";
 import { checkAccessAndRedirect } from "@/app/components/Controllers/accessControl";
 import GetJwtToken from "@/app/components/Controllers/fetchJWT";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
-  const [isPageLoading, setisPageLoading] = useState(true); // Add a loading state
+  const [isAuthenticated, setAuthentication] = useState(false);
+  const router = useRouter();
+
   useEffect(() => {
     const checkAccess = async () => {
-      await checkAccessAndRedirect();
-      setisPageLoading(false); // Set loading to false after check
+      const isUserAuthenticated = await checkAccessAndRedirect();
+      setAuthentication(isUserAuthenticated);
+      console.log("is user authenticated", isAuthenticated);
+      if (!isUserAuthenticated) {
+        router.push("/");
+      }
     };
     checkAccess();
   }, []);
@@ -53,23 +60,19 @@ const Page = () => {
       setUserData(userData);
     } catch (error) {
       console.error("Error fetching user data:", error);
-      alert("Failed to fetch user data");
+      // alert("Failed to fetch user data");
     }
   };
 
   useEffect(() => {
-    if (!isPageLoading) {
+    if (!isAuthenticated) {
       fetchData();
-      setisPageLoading(true);
     }
   }, []);
 
-
-  if (isPageLoading) {
-    return <div></div>; // Show loading state
+  if (!isAuthenticated) {
+    return <></>;
   }
-
-  // }, []);
 
   // Calculate index of the first and last user of the current page
   const indexOfLastUser = currentPage * usersPerPage;
@@ -139,19 +142,35 @@ const Page = () => {
             {user.last_name}
           </div>
         </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div
+            className={`text-sm text-white p-2 rounded-lg dark:text-neutral-200 text-center ${
+              user.isAdmin ? "bg-purple-600" : "bg-blue-600"
+            }`}
+          >
+            {user.isAdmin ? "Admin" : "User"}
+          </div>
+        </td>
+
         <td className="px-6 py-4 whitespace-nowrap text-end">
-          <button
-            className="text-sm text-white bg-purple-500 p-2 px-6 rounded-lg  dark:text-red-500 ml-2 hover:bg-purple-700"
-            onClick={() => openEditModal(user)}
-          >
-            Edit
-          </button>
-          <button
-            className="text-sm text-white bg-purple-500 p-2 px-6 rounded-lg  dark:text-red-500 ml-2 hover:bg-purple-700"
-            onClick={() => deleteUser(user.email)}
-          >
-            Delete
-          </button>
+          {!user.isAdmin ? (
+            <>
+              <button
+                className="text-sm text-white bg-purple-500 p-2 px-6 rounded-lg dark:text-red-500 ml-2 hover:bg-purple-700"
+                onClick={() => openEditModal(user)}
+              >
+                Edit
+              </button>
+              <button
+                className="text-sm text-white bg-purple-500 p-2 px-6 rounded-lg dark:text-red-500 ml-2 hover:bg-purple-700"
+                onClick={() => deleteUser(user.email)}
+              >
+                Delete
+              </button>
+            </>
+          ) : (
+            ""
+          )}
         </td>
       </tr>
     );
@@ -569,6 +588,9 @@ const Page = () => {
                       </th>
                       <th scope="col" className="px-6 py-3 text-start">
                         Last Name
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-center">
+                        Privilege
                       </th>
                       <th scope="col" className="px-6 py-3 text-end">
                         Actions

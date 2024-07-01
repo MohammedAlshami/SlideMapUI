@@ -26,12 +26,17 @@ const MapPage = () => {
   const router = useRouter();
   const [geoJSON, setGeoJSON] = useState(null);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [isAuthenticated, setAuthentication] = useState(false);
+
   useEffect(() => {
     const checkAccess = async () => {
-      await checkAccessAndRedirect();
-      setIsLoading(false); // Set loading to false after check
+      const isUserAuthenticated = await checkAccessAndRedirect();
+      setAuthentication(isUserAuthenticated);
+      console.log("is user authenticated", isAuthenticated);
+      if (!isUserAuthenticated) {
+        router.push("/");
+      }
     };
-
     checkAccess();
   }, []);
 
@@ -138,9 +143,6 @@ const MapPage = () => {
       images: [...prevData.images].filter((_, i) => i !== index),
     }));
   };
-  if (isLoading) {
-    return <div></div>; // Show loading state
-  }
 
   return (
     //  <div>

@@ -2,52 +2,39 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "@/app/components/Navbar";
 import MainLayout from "@/app/components/MainLayout";
-// import { useRouter } from "next/navigation";
 import { redirect, useRouter } from "next/navigation";
 import { checkSessionAuthCookie } from "../components/Controllers/Cookies";
 
-// import signInWithGoogle from "../components/Controllers/Firebase"
 import signInWithGoogle from "../components/Controllers/Firebase/GmailLogin";
 import {checkAccessAndRedirect} from "../components/Controllers/accessControl";
 
 const page = () => {
-  interface CreateAccountProps {
-    email: string;
-    password: string;
-  }
-  
 
-  const [isPageLoading, setisPageLoading] = useState(true); // Add a loading state
+  const [isAuthenticated, setAuthentication] = useState(false);
 
   useEffect(() => {
     const checkAccess = async () => {
-      await checkAccessAndRedirect();
-      setisPageLoading(false); // Set loading to false after check
+      const isUserAuthenticated = await checkAccessAndRedirect();
+      setAuthentication(isUserAuthenticated);
+      console.log("is user authenticated", isUserAuthenticated);
+      if (isUserAuthenticated) {
+        router.push("/");
+      } 
     };
-
     checkAccess();
   }, []);
-  
+
  
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isAuthenticated, setAuthentication] = useState(false);
+  
 
   const router = useRouter();
-  // const router = useRouter();
 
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/");
-    }
-  }, []);
  
-  if (isPageLoading) {
-    return <div></div>; // Show loading state
-  }
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,10 +74,10 @@ const page = () => {
     document.cookie = `session_auth=${user["email"]}`;
     setAuthentication(true);
     router.push("/");
-    // if (user) {
-
-    // }
   };
+
+
+
   return (
     <>
       <MainLayout>
@@ -155,18 +142,6 @@ const page = () => {
               />
               {error && <p className="text-red-500">{error}</p>}
             </form>
-
-            {/* Put this part before </body> tag */}
-     
-            {/* <p className="my-8 text-xs font-medium text-center text-gray-700">
-              By clicking "Sign Up" you agree to our
-              <a
-                className="text-purple-700 hover:text-purple-900"
-                href="#my_modal_8"
-              >
-                Terms of Service and Privacy Policy
-              </a>
-            </p> */}
             <p className="my-8 text-xs font-medium text-right text-gray-700">
               Already Have an account?  
               <a

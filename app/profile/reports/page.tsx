@@ -4,19 +4,25 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "@/app/components/MainLayout";
 import GetJwtToken from "@/app/components/Controllers/fetchJWT";
 import { checkAccessAndRedirect } from "@/app/components/Controllers/accessControl";
+import { useRouter } from "next/navigation";
+
 const Page = () => {
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setAuthentication] = useState(false);
 
-  const [isPageLoading, setisPageLoading] = useState(true); // Add a loading state
+  const router = useRouter();
 
   useEffect(() => {
     const checkAccess = async () => {
-      await checkAccessAndRedirect();
-      setisPageLoading(false); // Set loading to false after check
+      const isUserAuthenticated = await checkAccessAndRedirect();
+      setAuthentication(isUserAuthenticated);
+      console.log("is user authenticated", isAuthenticated);
+      if (!isUserAuthenticated) {
+        router.push("/");
+      }
     };
-
     checkAccess();
   }, []);
 
@@ -32,7 +38,7 @@ const Page = () => {
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
-          'Authorization': `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${jwtToken}`,
 
           "Content-Type": "application/json",
         },
@@ -51,10 +57,10 @@ const Page = () => {
   };
 
   useEffect(() => {
-    if (!isPageLoading) {
+    if (!isAuthenticated) {
       fetchData();
     }
-  }, [isPageLoading]);
+  }, [isAuthenticated]);
 
   const handleDelete = async (reportId) => {
     const sessionCookie = document.cookie
@@ -66,7 +72,7 @@ const Page = () => {
       const response = await fetch("http://127.0.0.1:5000/delete_report", {
         method: "POST",
         headers: {
-          'Authorization': `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${jwtToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ report_id: reportId, email: sessionValue }),
@@ -103,7 +109,7 @@ const Page = () => {
       const response = await fetch("http://127.0.0.1:5000/edit_report", {
         method: "POST",
         headers: {
-          'Authorization': `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${jwtToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(editedReport),
@@ -136,7 +142,7 @@ const Page = () => {
             {
               method: "POST",
               headers: {
-                'Authorization': `Bearer ${jwtToken}`,
+                Authorization: `Bearer ${jwtToken}`,
               },
             }
           );
@@ -305,24 +311,12 @@ const Page = () => {
     </a>
   );
 
-  if (isPageLoading) {
-    return <div></div>; // Show loading state
-  }
-
   if (error) {
-    return (
-      <MainLayout>
-        <p>Error: {error}</p>
-      </MainLayout>
-    );
+    return <p></p>;
   }
 
   if (isLoading) {
-    return (
-      <MainLayout>
-        <p></p>
-      </MainLayout>
-    );
+    return <p></p>;
   }
 
   return (
@@ -348,7 +342,7 @@ const Page = () => {
               <ReportCard key={index} report={report} />
             ))
           ) : (
-            <p className="pt-12">You haven't made any reports</p>
+            <p className="pt-12"></p>
           )}
         </div>
         {showModal && <EditModal report={selectedReport} />}

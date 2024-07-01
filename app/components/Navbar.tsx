@@ -129,16 +129,7 @@ const Navbar = () => {
               >
                 Map
               </a>
-              <a
-                className={`font-medium ${
-                  pathname === "/report"
-                    ? "text-[#8A2BE2] hover:text-blue-400"
-                    : "text-gray-500 hover:text-[#8A2BE2]"
-                } md:py-6`}
-                href="/report"
-              >
-                Report Landslide
-              </a>
+         
 
               <a
                 className={`font-medium ${
@@ -215,6 +206,11 @@ const Navbar = () => {
                   </a>
                 </li>
 
+                <li>
+                  <a className="justify-between" href="/profile/detect">
+                    Detect
+                  </a>
+                </li>
                 {isAdmin && (
                   <>
                     <li>

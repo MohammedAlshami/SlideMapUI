@@ -2,16 +2,21 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "@/app/components/MainLayout";
 import { checkAccessAndRedirect } from "../../components/Controllers/accessControl";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
-  const [isLoading, setIsLoading] = useState(true); // Add a loading state
+  const [isAuthenticated, setAuthentication] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkAccess = async () => {
-      await checkAccessAndRedirect();
-      setIsLoading(false); // Set loading to false after check
+      const isUserAuthenticated = await checkAccessAndRedirect();
+      setAuthentication(isUserAuthenticated);
+      console.log("is user authenticated", isAuthenticated);
+      if (!isUserAuthenticated) {
+        router.push("/");
+      }
     };
-
     checkAccess();
   }, []);
 
@@ -51,11 +56,13 @@ const Page = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    if (!isAuthenticated) {
+      fetchData();
+    }
   }, []);
 
-  if (isLoading) {
-    return <div></div>; // Show loading state
+  if (!isAuthenticated) {
+    return <></>;
   }
   // Calculate index of the first and last report of the current page
   const indexOfLastReport = currentPage * reportsPerPage;

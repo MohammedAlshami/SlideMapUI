@@ -2,27 +2,33 @@
 import ProfileLayout from "../components/ProfileLayout/ProfileLayout";
 import Footer1 from "../components/Footers/Footer1";
 import MainLayout from "../components/MainLayout";
-import GetJwtToken from "../components/Controllers/fetchJWT"
+import GetJwtToken from "../components/Controllers/fetchJWT";
 import React, { useEffect, useState } from "react";
 import { checkAccessAndRedirect } from "../components/Controllers/accessControl";
+import { useRouter } from "next/navigation";
 
 const page = () => {
-  const [isPageLoading, setisPageLoading] = useState(true); // Add a loading state
+  const [isAuthenticated, setAuthentication] = useState(false);
+  const router = useRouter();
+
   useEffect(() => {
     const checkAccess = async () => {
-      await checkAccessAndRedirect();
-      setisPageLoading(false); // Set loading to false after check
+      const isUserAuthenticated = await checkAccessAndRedirect();
+      setAuthentication(isUserAuthenticated);
+      console.log("is user authenticated", isAuthenticated);
+      if (!isUserAuthenticated) {
+        router.push("/");
+      }
     };
     checkAccess();
   }, []);
 
-  if (isPageLoading) {
-    return <div></div>; // Show loading state
-  }
-  const sessionCookie = document.cookie.split('; ').find(row => row.startsWith('session_auth='));
-  const sessionValue = sessionCookie ? sessionCookie.split('=')[1] : '';
+  const sessionCookie = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("session_auth="));
+  const sessionValue = sessionCookie ? sessionCookie.split("=")[1] : "";
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -40,8 +46,7 @@ const page = () => {
         const response = await fetch("http://127.0.0.1:5000/get-profile", {
           method: "POST",
           headers: {
-            
-            'Authorization': `Bearer ${jwtToken}`,
+            Authorization: `Bearer ${jwtToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ userId: dummyUserId }),
@@ -53,8 +58,15 @@ const page = () => {
       }
     };
 
-    fetchUserProfile();
+    if (!isAuthenticated) {
+      fetchUserProfile();
+    }
   }, []);
+
+
+  if (!isAuthenticated) {
+    return <></>;
+  }
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -87,7 +99,7 @@ const page = () => {
       const response = await fetch("http://127.0.0.1:5000/edit-profile", {
         method: "POST",
         headers: {
-          'Authorization': `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${jwtToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),

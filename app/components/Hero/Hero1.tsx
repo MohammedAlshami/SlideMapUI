@@ -15,10 +15,23 @@ const Hero1 = () => {
             </p>
 
             <div className="flex flex-wrap justify-center lg:justify-start mt-12">
-                <button type="button" className="px-8 py-3 m-2 text-lg font-semibold rounded dark:bg-gray-800 dark:text-gray-50">Check Map</button>
-                <button type="button" className="px-8 py-3 m-2 text-lg border rounded dark:border-gray-700 dark:text-gray-900">About Us</button>
-              </div>
-
+              <a href="/map">
+                <button
+                  type="button"
+                  className="px-8 py-3 m-2 text-lg font-semibold rounded dark:bg-gray-800 dark:text-gray-50"
+                >
+                  Check Map
+                </button>
+              </a>
+              <a href="#About_us">
+                <button
+                  type="button"
+                  className="px-8 py-3 m-2 text-lg border rounded dark:border-gray-700 dark:text-gray-900"
+                >
+                  About Us
+                </button>
+              </a>
+            </div>
           </div>
 
           <div className="lg:col-span-4 mt-10 lg:mt-0">
