@@ -70,7 +70,7 @@ const getAuthenticatedUrls = () => {
 
 // Function to get the list of URLs accessible only to admins
 const getAdminUrls = () => {
-  return ["/profile/all_reports", "/profile/all_users"];
+  return ["/profile/all_reports", "/profile/all_users", "/profile", "/profile/detect", "/profile/reports", "/report"];
 };
 
 export default getJwtToken; // Export the getJwtToken function for reuse

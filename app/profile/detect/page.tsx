@@ -32,9 +32,9 @@ const page = () => {
 
     checkAccess();
   }, []);
-  if (isLoading) {
-    return <div></div>; // Show loading state
-  }
+  // if (isLoading) {
+  //   return <div></div>; // Show loading state
+  // }
   const fileInputRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const downloadRef = useRef(null);

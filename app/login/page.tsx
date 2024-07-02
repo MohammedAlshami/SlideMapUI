@@ -6,10 +6,9 @@ import { redirect, useRouter } from "next/navigation";
 import { checkSessionAuthCookie } from "../components/Controllers/Cookies";
 
 import signInWithGoogle from "../components/Controllers/Firebase/GmailLogin";
-import {checkAccessAndRedirect} from "../components/Controllers/accessControl";
+import { checkAccessAndRedirect } from "../components/Controllers/accessControl";
 
 const page = () => {
-
   const [isAuthenticated, setAuthentication] = useState(false);
 
   useEffect(() => {
@@ -19,22 +18,16 @@ const page = () => {
       console.log("is user authenticated", isUserAuthenticated);
       if (isUserAuthenticated) {
         router.push("/");
-      } 
+      }
     };
     checkAccess();
   }, []);
 
- 
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  
 
   const router = useRouter();
-
- 
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,13 +63,38 @@ const page = () => {
   };
   const handleClick = async (e) => {
     e.preventDefault();
-    const user = await signInWithGoogle();
-    document.cookie = `session_auth=${user["email"]}`;
-    setAuthentication(true);
-    router.push("/");
+
+    try {
+      // Sign in with Google and obtain user data
+      const user = await signInWithGoogle();
+
+      // Make a fetch request to your backend to get profile and session details
+      const response = await fetch(" http://127.0.0.1:5000/get-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user["email"] }), // Send user email to backend
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      console.log(data);
+      // Set session cookies or local storage with received data
+      document.cookie = `session_auth=${user["email"]}`;
+      document.cookie = `session_jwt=${data.access_token}`;
+      document.cookie = `isAdmin=${data.isAdmin}`;
+      router.push("/");
+
+    } catch (error) {
+      console.error("Error signing in with Google or fetching profile:", error);
+      // Handle error if necessary
+    }
   };
-
-
 
   return (
     <>
@@ -105,7 +123,6 @@ const page = () => {
                 </svg>
                 Continue with Google
               </a>
-         
             </div>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <label className="block w-full">
@@ -143,12 +160,12 @@ const page = () => {
               {error && <p className="text-red-500">{error}</p>}
             </form>
             <p className="my-8 text-xs font-medium text-right text-gray-700">
-              Already Have an account?  
+              Don't Have an account?
               <a
                 className="pl-2 text-purple-700 hover:text-purple-900"
                 href="/register"
               >
-                 Sign up
+                Sign up
               </a>
             </p>
           </div>

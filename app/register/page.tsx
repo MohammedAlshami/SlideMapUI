@@ -124,6 +124,7 @@ const page = () => {
       if (data.authenticated) {
         document.cookie = `session_auth=${email}; path=/`;
         document.cookie = `session_jwt=${data.access_token}`;
+        document.cookie = `isAdmin=${data.isAdmin}`;
 
         setAuthentication(true);
         router.push("/");
@@ -243,13 +244,13 @@ const page = () => {
                 value="Sign Up"
               />
             </form>
-            <p className="my-8 text-xs font-medium text-center text-gray-700">
-              By clicking "Sign Up" you agree to our
+            <p className="my-8 text-xs font-medium text-right text-gray-700">
+              Already Have an account?
               <a
-                className="pl-1 text-purple-700 hover:text-purple-900"
-                href="#my_modal_8"
+                className="pl-2 text-purple-700 hover:text-purple-900"
+                href="/register"
               >
-                Terms of Service and Privacy Policy
+                Sign In
               </a>
             </p>
           </div>
